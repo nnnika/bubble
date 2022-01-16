@@ -13,6 +13,11 @@ index_forecast = {
     "real":{"date":[], "close":[]}           # 30days
 }
 
+
+def get_index_quote(code, start, end, fields):
+    return {}
+
+
 # 未来一周上涨行业预测
 industry_forecast = {
     "info":[{
