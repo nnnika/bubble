@@ -15,6 +15,7 @@ index_forecast = {
 
 
 def get_index_quote(code, start, end, fields):
+    print(code, start, end, fields)
     return {}
 
 
