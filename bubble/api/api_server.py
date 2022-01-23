@@ -3,6 +3,8 @@ from flask import request
 import json
 from bubble.data.redis_con import rcon
 from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_index_quote
+from bubble.data.api import DataApi
+from bubble.utils.logger import log
 
 server = Flask(__name__)
 
@@ -43,14 +45,16 @@ def home_visit():
     return json.dumps(res, ensure_ascii=False)
 
 
-@server.route('/data/<table>/', methods=['GET', 'POST'])
+@server.route('/data/<table>', methods=['GET', 'POST'])
 def table_data(table):
-    print(table)
+    log.debug(table)
     param_dic = {}
     if request.method == "GET":
         param_dic = request.args
     if request.method == "POST":
-        if request.content_type.startswith('application/json'):
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
             param_dic = request.json
         elif request.content_type.startswith('multipart/form-data'):
             param_dic = request.form
@@ -61,7 +65,30 @@ def table_data(table):
     end = param_dic.get('end')
     fields = param_dic.get('fields')
     code = param_dic.get('code')
-    res = get_index_quote(code, start, end, fields)
+    res = DataApi().get_factor(table, code, start, end)
+    return json.dumps(res, ensure_ascii=False)
+
+
+@server.route('/factor/<table>', methods=['GET', 'POST'])
+def factor_data(table):
+    log.debug(table)
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+
+    start = param_dic.get('start')
+    end = param_dic.get('end')
+    code = param_dic.get('code')
+    res = DataApi().get_factor(table, code, start, end)
     return json.dumps(res, ensure_ascii=False)
 
 
