@@ -1,4 +1,3 @@
-import json
 import pymysql
 from bubble.utils.logger import log
 from bubble.config import host, user, passwd, db, port, charset
