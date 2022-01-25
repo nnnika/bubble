@@ -1,5 +1,9 @@
 import json
 import pymysql
+from bubble.utils.logger import log
+from bubble.config import host, user, passwd, db, port, charset
+
+connection = pymysql.Connect(host=host, user=user, passwd=passwd, db=db, port=port, charset=charset)
 
 
 class DataApi(object):
@@ -12,30 +16,23 @@ class DataApi(object):
 
     def get_factor(self, table, code, start, end):
         try:
-            # 数据库读写, 创建mysql数据库连接对象
-            connection = pymysql.Connect(host='122.112.170.96', user='bubble', passwd='bubble', db='db_bubble',
-                                         port=3306, charset='utf8')
-            cur = connection.cursor()  # 创建mysql数据库游标对象   port要不要？
-            sql = "SELECT datetime, value, code FROM factor_index_quote_close"
+            cur = connection.cursor()  # 创建mysql数据库游标对象
+            sql = f"SELECT datetime, value, code FROM {table} WHERE datetime BETWEEN '{start}' AND '{end}'"
             cur.execute(sql)
             data = cur.fetchall()
             cur.close()
             connection.close()
             # 循环读取元组数据
-            jsonData = []
+            date_list = []
+            value_list = []
             for row in data:
-                result = {}
-                result['datetime'] = row[0]
-                result['value'] = row[1]
-                jsonData.append(result)
-        except:
+                date_list.append(row[0].strftime('%Y-%m-%d'))
+                value_list.append(float(row[1]))
+            Packed = {f"{code}": {"date": date_list, "value": value_list}}
+        except Exception as e:
+            log.debug(start, end, code, table)
+            log.exception(e)
             print('MySQL connect fail...')
+            return {}
         else:
-            # ensure_ascii=False，能够防止中文乱码。
-            # json.dumps()是将原始数据转为json，而json.loads()是将json转为原始数据。
-            jsondatar = json.dumps(jsonData, ensure_ascii=False)
-            return jsondatar[1:len(jsondatar) - 1]  # 去除首尾的中括号
-
-        # return {
-        #     "000001.SH": {"date": ['2021-01-05', ], "value": [3600, ]}
-        # }
+            return Packed   # return {"000001.SH": {"date": ['2021-01-01', ], "value": [3600, ]}}

@@ -6,10 +6,10 @@ from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_
 from bubble.data.api import DataApi
 from bubble.utils.logger import log
 
-server = Flask(__name__)
+app = Flask(__name__)
 
 
-@server.route('/login', methods=['get', 'post'])
+@app.route('/login', methods=['get', 'post'])
 def login():
     # 获取通过url请求传参的数据
     username = request.values.get('name')
@@ -28,7 +28,7 @@ def login():
         return json.dumps(res, ensure_ascii=False)
 
 
-@server.route('/visit_counter', methods=['get', 'post'])
+@app.route('/visit_counter', methods=['get', 'post'])
 def visit_counter():
     r = rcon()
     r.incr('count', 1)
@@ -37,7 +37,7 @@ def visit_counter():
     return json.dumps(res, ensure_ascii=False)
 
 
-@server.route('/home', methods=['get', 'post'])
+@app.route('/home', methods=['get', 'post'])
 def home_visit():
     res = {"stock_pool": stock_pool,
            "index_forecast": index_forecast,
@@ -45,7 +45,7 @@ def home_visit():
     return json.dumps(res, ensure_ascii=False)
 
 
-@server.route('/data/<table>', methods=['GET', 'POST'])
+@app.route('/data/<table>', methods=['GET', 'POST'])
 def table_data(table):
     log.debug(table)
     param_dic = {}
@@ -69,7 +69,7 @@ def table_data(table):
     return json.dumps(res, ensure_ascii=False)
 
 
-@server.route('/factor/<table>', methods=['GET', 'POST'])
+@app.route('/factor/<table>', methods=['GET', 'POST'])
 def factor_data(table):
     log.debug(table)
     param_dic = {}
@@ -93,4 +93,4 @@ def factor_data(table):
 
 
 if __name__ == '__main__':
-    server.run(debug=True,port=8888,host='0.0.0.0')
+    app.run(debug=True, port=8888, host='0.0.0.0')
