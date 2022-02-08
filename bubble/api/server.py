@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from flask_cors import CORS
 import json
 from bubble.data.redis_con import rcon
 from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_index_quote
@@ -93,4 +94,5 @@ def factor_data(table):
 
 
 if __name__ == '__main__':
+    CORS(app, supports_credentials=True)
     app.run(debug=True, port=8888, host='0.0.0.0')
