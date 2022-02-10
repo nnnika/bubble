@@ -15,12 +15,12 @@ class DataApi(object):
 
     def get_factor(self, table, code, start, end):
         try:
+            connection.ping(reconnect=True)
             cur = connection.cursor()  # 创建mysql数据库游标对象
             sql = f"SELECT datetime, value, code FROM {table} WHERE datetime BETWEEN '{start}' AND '{end}'"
             cur.execute(sql)
             data = cur.fetchall()
             cur.close()
-            connection.close()
             # 循环读取元组数据
             date_list = []
             value_list = []
