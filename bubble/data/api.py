@@ -1,8 +1,9 @@
 import pymysql
+from DBUtils.PooledDB import PooledDB
 from bubble.utils.logger import log
 from bubble.config import host, user, passwd, db, port, charset
 
-connection = pymysql.Connect(host=host, user=user, passwd=passwd, db=db, port=port, charset=charset)
+pool = PooledDB(pymysql, 5, host=host, user=user, passwd=passwd, db=db, port=port, charset=charset)
 
 
 class DataApi(object):
@@ -15,6 +16,7 @@ class DataApi(object):
 
     def get_factor(self, table, code, start, end):
         try:
+            connection = pool.connection()
             connection.ping(reconnect=True)
             cur = connection.cursor()  # 创建mysql数据库游标对象
             sql = f"SELECT datetime, value, code FROM {table} WHERE datetime BETWEEN '{start}' AND '{end}'"
