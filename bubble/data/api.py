@@ -1,5 +1,5 @@
 import pymysql
-from DBUtils.PooledDB import PooledDB
+from dbutils.pooled_db import PooledDB
 from bubble.utils.logger import log
 from bubble.config import host, user, passwd, db, port, charset
 
