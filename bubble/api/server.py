@@ -39,9 +39,9 @@ login_manager.login_message = '请先登陆或注册'
 
 @app.route('/login', methods=['POST'])
 def login():
-    user_id = request.form.get('user_id')
-    passwd = request.form.get('passwd')
-    user = User.query.filter_by(user_id=user_id, passwd=md5(passwd)).first()
+    username = request.form.get('username')
+    password = request.form.get('password')
+    user = User.query.filter_by(username=username, password=md5(password.encode('utf8'))).first()
     # if user and user.check_password(request.form.password.data):
     if not user:
         return pack_res({}, code=-1, msg="用户不存在")

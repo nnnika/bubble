@@ -2,6 +2,7 @@ from bubble.api.base import db
 
 
 class User(db.Model):
+    __tablename__ = 'app_user_info'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True)
     password = db.Column(db.String(64))
