@@ -1,15 +1,15 @@
 from flask import Flask
 from flask import request
 from flask_login import LoginManager, login_user
-import sqlalchemy
-from numpy import unicode
+from hashlib import md5
 import json
 from bubble.data.redis_con import rcon
 from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_index_quote
 from bubble.data.api import DataApi
 from bubble.utils.logger import log
 from bubble.utils.func import pack_res
-
+from bubble.api.base import app
+from bubble.data.user import User
 
 
 # @app.route('/login', methods=['get', 'post'])
@@ -31,40 +31,10 @@ from bubble.utils.func import pack_res
 #         return pack_res(res)
 
 
-# def create_app():
-app = Flask(__name__)
-app.config.from_object('app.secure')
-app.config.from_object('app.setting')
-db = sqlalchemy(app)
-db.init_app(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'web_login'
 login_manager.login_message = '请先登陆或注册'
-
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    nickname = db.Column(db.String(64), unique = True)
-    email = db.Column(db.String(120), unique = True)
-    posts = db.relationship('Post', backref = 'author', lazy = 'dynamic')
-    # 下面四种方法的作用具体看flaskweb档案
-    def is_authenticated(self):
-        return True
-    def is_active(self):
-        return True
-
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    def __repr__(self):
-        return '<User %r>' % (self.nickname)
 
 
 @app.route('/login', methods=['POST'])
@@ -72,18 +42,11 @@ def login():
     user_id = request.form.get('user_id')
     passwd = request.form.get('passwd')
     user = User.query.filter_by(user_id=user_id, passwd=md5(passwd)).first()
-    if user and user.check_password(form.password.data):
-        if not user:
-            return Response('用户不存在')
-        login_user(user)
-        return Response('ok')
-
-
-@app.route('/login', methods=['get', 'post'])
-def login():
-    form = LoginForm(request.form)
-    if request.method == 'POST' and form.validate():
-        user = User.query.filter_by()
+    # if user and user.check_password(request.form.password.data):
+    if not user:
+        return pack_res({}, code=-1, msg="用户不存在")
+    login_user(user)
+    return pack_res({}, code=200, msg="success")
 
 
 @app.route('/visit_counter', methods=['get', 'post'])
