@@ -9,3 +9,4 @@ charset='utf8'
 class Config(object):
     TESTING = False
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{db}?charset={charset}'
+    SECRET_KEY = 'bubble123456'
