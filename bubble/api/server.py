@@ -53,7 +53,7 @@ def login():
             param_dic = request.values
     username = param_dic.get('username')
     password = param_dic.get('password')
-    user = User.query.filter_by(username=username, password=md5(password.encode('utf8'))).first()
+    user = User.query.filter_by(username=username, password=md5(password.encode('utf8')).hexdigest()).first()
     # if user and user.check_password(request.form.password.data):
     if not user:
         return pack_res({}, code=-1, msg="用户不存在")
