@@ -37,7 +37,7 @@ login_manager.login_view = 'web_login'
 login_manager.login_message = '请先登陆或注册'
 
 
-@app.route('/login', methods=['POST'])
+@app.route('/user/login', methods=['POST'])
 def login():
     param_dic = {}
     if request.method == "GET":
@@ -60,6 +60,32 @@ def login():
     login_user(user)
     return pack_res({}, code=200, msg="success")
 
+@app.route('/user/info', methods=['POST'])
+def info():
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+    token = param_dic.get('token')
+#     user = User.query.filter_by(username=username, password=md5(password.encode('utf8')).hexdigest()).first()
+#     # if user and user.check_password(request.form.password.data):
+#     if not user:
+#         return pack_res({}, code=-1, msg="用户不存在")
+    info = {
+        "roles": "admin",
+        "name": "wally",
+        "avatar": "",
+        "introduction": "a test account"
+    }
+    return pack_res(info,code=200, msg="success")
 
 @app.route('/visit_counter', methods=['get', 'post'])
 def visit_counter():
