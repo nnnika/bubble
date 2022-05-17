@@ -12,25 +12,6 @@ from bubble.api.base import app
 from bubble.data.user import User
 
 
-# @app.route('/login', methods=['get', 'post'])
-# def login():
-#     # 获取通过url请求传参的数据
-#     username = request.values.get('name')
-#     # 获取url请求传的密码，明文　
-#     pwd = request.values.get('pwd')
-#     # 判断用户名、密码都不为空，如果不传用户名、密码则username和pwd为None
-#     if username and pwd:
-#         if username == 'xsnimm' and pwd == '111':
-#             res = {'code': 200, 'message': '登录成功'}
-#             return pack_res(res)  # 将字典转换为Json串，json是字符串
-#         else:
-#             res = {'code': -1, 'message': '账号密码错误'}
-#             return pack_res(res)
-#     else:
-#         res = {'code': 1001, 'message': '参数不能为空'}
-#         return pack_res(res)
-
-
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'web_login'
@@ -60,7 +41,7 @@ def login():
     login_user(user)
     return pack_res({}, code=200, msg="success")
 
-@app.route('/user/info', methods=['POST'])
+@app.route('/user/info', methods=['POST', 'GET'])
 def info():
     param_dic = {}
     if request.method == "GET":
@@ -80,12 +61,38 @@ def info():
 #     if not user:
 #         return pack_res({}, code=-1, msg="用户不存在")
     info = {
-        "roles": "admin",
+        "roles": ["admin"],
         "name": "wally",
         "avatar": "",
         "introduction": "a test account"
     }
     return pack_res(info,code=200, msg="success")
+
+
+@app.route('/user/logout', methods=['POST'])
+def logout():
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+    # token = param_dic.get('token')
+#     user = User.query.filter_by(username=username, password=md5(password.encode('utf8')).hexdigest()).first()
+#     # if user and user.check_password(request.form.password.data):
+#     if not user:
+#         return pack_res({}, code=-1, msg="用户不存在")
+    info = {
+        
+    }
+    return pack_res(info,code=200, msg="success")
+
 
 @app.route('/visit_counter', methods=['get', 'post'])
 def visit_counter():
