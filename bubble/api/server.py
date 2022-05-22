@@ -94,6 +94,30 @@ def logout():
     return pack_res(info,code=200, msg="success")
 
 
+@app.route('/user/avatar_upload', methods=['POST'])
+def avatar_upload():
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+    print(request.files)
+    # todo 完成图片文件的服务器端保存，并返回头像地址
+    info = {
+        "files": {
+            "avatar": "http://www.wallyi.com/img/1.jpg"
+        }        
+    }
+    return pack_res(info,code=200, msg="success")
+
+
 @app.route('/visit_counter', methods=['get', 'post'])
 def visit_counter():
     r = rcon()
