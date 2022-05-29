@@ -7,16 +7,17 @@ from bubble.data.redis_con import rcon
 from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_index_quote
 from bubble.data.api import DataApi
 from bubble.utils.logger import log
-from bubble.utils.func import pack_res
+from bubble.utils.func import pack_res, save_file
 from bubble.api.base import app
 from bubble.data.user import User
+from bubble.utils.gen_jwt import generate_jwt_token
 
 
 login_manager = LoginManager()
 login_manager.init_app(app)
-login_manager.login_view = 'web_login'
+login_manager.login_view = '/user/login'
 login_manager.login_message = '请先登陆或注册'
-
+# login_manager.blueprint_login_views = {}
 
 @app.route('/user/login', methods=['POST'])
 def login():
@@ -39,7 +40,12 @@ def login():
     if not user:
         return pack_res({}, code=-1, msg="用户不存在")
     login_user(user)
-    return pack_res({}, code=200, msg="success")
+
+    print(user.id)
+    token = generate_jwt_token(user.id)
+    return pack_res({
+        "token": token
+    }, code=200, msg="success")
 
 @app.route('/user/info', methods=['POST', 'GET'])
 def info():
@@ -108,8 +114,8 @@ def avatar_upload():
             param_dic = request.form
         else:
             param_dic = request.values
-    print(request.files)
-    # todo 完成图片文件的服务器端保存，并返回头像地址
+    user_key = ""
+    save_file(request.files["avatar"].read(), app.config["IMG_UPLOAD_PATH"]+"")
     info = {
         "files": {
             "avatar": "http://www.wallyi.com/img/1.jpg"

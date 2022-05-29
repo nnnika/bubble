@@ -5,3 +5,4 @@ DBUtils~=3.0.2
 flask-login
 flask_cors
 flask_sqlalchemy
+pyjwt
