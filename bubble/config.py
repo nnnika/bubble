@@ -12,5 +12,5 @@ class Config(object):
     TESTING = False
     SQLALCHEMY_DATABASE_URI = f'mysql+pymysql://{user}:{passwd}@{host}:{port}/{db}?charset={charset}'
     SECRET_KEY = SECRET_KEY
-    IMG_UPLOAD_PATH = "d:/"
+    IMG_UPLOAD_PATH = "d:/img"
     AUTH_HEADER_NAME = "token"
