@@ -1,8 +1,10 @@
+
+import json
+import os
+from hashlib import md5
 from flask import Flask
 from flask import request
 from flask_login import LoginManager, login_user
-from hashlib import md5
-import json
 from bubble.data.redis_con import rcon
 from bubble.data.home import stock_pool, index_forecast, industry_forecast, get_index_quote
 from bubble.data.api import DataApi
@@ -10,7 +12,7 @@ from bubble.utils.logger import log
 from bubble.utils.func import pack_res, save_file
 from bubble.api.base import app
 from bubble.data.user import User
-from bubble.utils.gen_jwt import generate_jwt_token
+from bubble.utils.gen_jwt import user_id_to_token, token_to_user_id
 
 
 login_manager = LoginManager()
@@ -42,7 +44,7 @@ def login():
     login_user(user)
 
     print(user.id)
-    token = generate_jwt_token(user.id)
+    token = user_id_to_token(user.id)
     return pack_res({
         "token": token
     }, code=200, msg="success")
@@ -114,14 +116,21 @@ def avatar_upload():
             param_dic = request.form
         else:
             param_dic = request.values
-    user_key = ""
-    save_file(request.files["avatar"].read(), app.config["IMG_UPLOAD_PATH"]+"")
-    info = {
-        "files": {
-            "avatar": "http://www.wallyi.com/img/1.jpg"
-        }        
-    }
-    return pack_res(info,code=200, msg="success")
+    token = request.headers["Token"]
+    user_id = token_to_user_id(token)
+    avatar_file = user_id + ".jpg"
+    avatar_path = app.config["IMG_UPLOAD_PATH"] + avatar_file
+    try:
+        save_file(request.files["avatar"].read(), avatar_path)
+        info = {
+            "files": {
+                "avatar": "http://invest.wallyi.com/file/img/{}".format(avatar_file)
+            }
+        }
+    except Exception as e:
+        log.exception(e)
+        return pack_res({}, code=-1, msg="avatar save failed.")
+    return pack_res(info, code=200, msg="success")
 
 
 @app.route('/visit_counter', methods=['get', 'post'])
