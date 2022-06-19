@@ -120,6 +120,7 @@ def avatar_upload():
     user_id = token_to_user_id(token)
     avatar_file = str(user_id) + ".jpg"
     avatar_path = os.path.join(app.config["IMG_UPLOAD_PATH"], avatar_file)
+    log.info(avatar_file)
     try:
         save_file(request.files["avatar"].read(), avatar_path)
         info = {
