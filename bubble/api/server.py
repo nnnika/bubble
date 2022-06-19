@@ -118,7 +118,7 @@ def avatar_upload():
             param_dic = request.values
     token = request.headers["Token"]
     user_id = token_to_user_id(token)
-    avatar_file = user_id + ".jpg"
+    avatar_file = str(user_id) + ".jpg"
     avatar_path = app.config["IMG_UPLOAD_PATH"] + avatar_file
     try:
         save_file(request.files["avatar"].read(), avatar_path)
