@@ -68,10 +68,13 @@ def info():
 #     # if user and user.check_password(request.form.password.data):
 #     if not user:
 #         return pack_res({}, code=-1, msg="用户不存在")
+    user_id = token_to_user_id(token)
+    avatar_url = "http://invest.wallyi.com/file/img/{}.jpg".format(user_id)
     info = {
+        "user_id": user_id,
         "roles": ["admin"],
         "name": "wally",
-        "avatar": "",
+        "avatar": avatar_url,
         "introduction": "a test account"
     }
     return pack_res(info,code=200, msg="success")
