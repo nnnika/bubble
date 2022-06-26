@@ -1,4 +1,5 @@
 
+import time
 import json
 import os
 from hashlib import md5
@@ -20,6 +21,7 @@ login_manager.init_app(app)
 login_manager.login_view = '/user/login'
 login_manager.login_message = '请先登陆或注册'
 # login_manager.blueprint_login_views = {}
+
 
 @app.route('/user/login', methods=['POST'])
 def login():
@@ -48,6 +50,7 @@ def login():
     return pack_res({
         "token": token
     }, code=200, msg="success")
+
 
 @app.route('/user/info', methods=['POST', 'GET'])
 def info():
@@ -128,7 +131,7 @@ def avatar_upload():
         save_file(request.files["avatar"].read(), avatar_path)
         info = {
             "files": {
-                "avatar": "http://invest.wallyi.com/file/img/{}".format(avatar_file)
+                "avatar": "http://invest.wallyi.com/file/img/{}?ts={}".format(avatar_file, int(time.time()))
             }
         }
     except Exception as e:
