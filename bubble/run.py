@@ -1,5 +1,5 @@
 from flask_cors import CORS
-from bubble.api.server import app
+from bubble.api import app
 
 CORS(app, supports_credentials=True)
 
