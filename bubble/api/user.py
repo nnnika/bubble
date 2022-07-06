@@ -12,7 +12,7 @@ from bubble.data.user import User
 from bubble.utils.gen_jwt import user_id_to_token, token_to_user_id
 from bubble.utils.const import (RESP_LOGIN_EXPIRED, RESP_SUCCESS)
 from jwt.exceptions import ExpiredSignatureError
-
+from bubble.api import db
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
 
@@ -135,3 +135,28 @@ def avatar_upload():
         log.exception(e)
         return pack_res({}, code=-1, msg="avatar save failed.")
     return pack_res(info, code=200, msg="success")
+
+
+@user_bp.route('/info/edit', methods=['GET', "POST"])
+def edit_info():
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+    token = request.headers["Token"]
+    try:
+        user_id = token_to_user_id(token)
+    except ExpiredSignatureError as e:
+        return pack_res({}, code=RESP_LOGIN_EXPIRED, msg="token expired.")
+    info = User.query.get_or_404(user_id)
+    info.email = param_dic.get("email")
+    db.session.commit()
+    return pack_res({}, code=200, msg="email save success")
