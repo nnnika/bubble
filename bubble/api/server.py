@@ -14,6 +14,8 @@ from bubble.utils.func import pack_res, save_file
 from bubble.api.base import app
 from bubble.data.user import User
 from bubble.utils.gen_jwt import user_id_to_token, token_to_user_id
+from bubble.utils.const import (RESP_LOGIN_EXPIRED, RESP_SUCCESS)
+from jwt.exceptions import ExpiredSignatureError
 
 
 login_manager = LoginManager()
@@ -123,7 +125,10 @@ def avatar_upload():
         else:
             param_dic = request.values
     token = request.headers["Token"]
-    user_id = token_to_user_id(token)
+    try:
+        user_id = token_to_user_id(token)
+    except ExpiredSignatureError as e:
+        return pack_res({}, code=RESP_LOGIN_EXPIRED, msg="token expired.")
     avatar_file = str(user_id) + ".jpg"
     avatar_path = os.path.join(app.config["IMG_UPLOAD_PATH"], avatar_file)
     log.info(avatar_file)

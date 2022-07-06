@@ -17,4 +17,6 @@ flask路径变量获取 前端往后端传参数
 * post请求在模板中要注意几点:
     * input 标签中，要写name来表示这个value的key,方便后台获取
     * 在写form表单的时候，要指定method=‘post’,并且要指定action='/login/'  
+    
+
 

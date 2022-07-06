@@ -1,10 +1,5 @@
 import json
-"""
-code
 
-200  成功
-
-"""
 
 
 def pack_res(res, code=200, msg="success"):
