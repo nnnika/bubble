@@ -6,3 +6,4 @@ flask-login
 flask_cors
 flask_sqlalchemy
 pyjwt
+flask-restful==0.3.9
