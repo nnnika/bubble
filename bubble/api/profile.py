@@ -14,15 +14,18 @@ from bubble.utils.const import (RESP_LOGIN_EXPIRED, RESP_SUCCESS)
 from jwt.exceptions import ExpiredSignatureError
 from bubble.api.base import db
 
+
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 
 api = Api(profile_bp)
 
 
+@api.resource('/<int:user_id>')
 class UserProfile(Resource):
+
 
     def get(self, user_id):
         pass
 
 
-api.add_resource(UserProfile, '/<int:user_id>')
+

@@ -11,9 +11,14 @@ from bubble.data.user import User
 from bubble.utils.gen_jwt import user_id_to_token, token_to_user_id
 from bubble.utils.const import (RESP_LOGIN_EXPIRED, RESP_SUCCESS)
 from jwt.exceptions import ExpiredSignatureError
-from bubble.api.base import db
+from bubble.api.base import db,login_manager
 
 user_bp = Blueprint('user', __name__, url_prefix='/user')
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return str(user_id)
 
 
 @user_bp.route('/login', methods=['POST'])
