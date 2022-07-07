@@ -23,9 +23,29 @@ api = Api(profile_bp)
 @api.resource('/<int:user_id>')
 class UserProfile(Resource):
 
-
     def get(self, user_id):
+        """Create a cute furry animal endpoint.
+        ---
+        post:
+          description: Create a random pet
+          parameters:
+            - in: body
+              name: body
+              required: True
+              schema:
+                    $ref: '#/definitions/Pet'
+          security:
+            - ApiKeyAuth: []
+          responses:
+            201:
+              description: If pet is created
+              content:
+                application/json:
+                  status: string
+        """
         pass
 
+    def post(self, user_id):
+        pass
 
 
