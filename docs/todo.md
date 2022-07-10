@@ -1,6 +1,6 @@
 # todo
 
-## todo now
+## t
 
 ## 技术学习
 1. flask框架 demo示例
