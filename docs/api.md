@@ -1,3 +1,16 @@
+# API 设计参考
+
+## 设计规范
+
+1. 全部接口支持POST请求，且默认选用POST请求方式。
+2. 部分接口支持GET请求，可视情况选用。
+3. 接口返回遵循统一格式
+4. 接口权限验证使用header请求头验证
+5. 参考restful架构设计风格，采用 /resource/action 的接口定义，如 /info/get   /info/edit 等
+
+
+
+
 code, start, end, fields(e.g.收盘价)
 table 在路径上
 
