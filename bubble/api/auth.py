@@ -74,3 +74,29 @@ def logout():
 
     }
     return pack_res(info, code=200, msg="success")
+
+
+@auth_bp.route('/logout', methods=['POST'])
+def change_password():
+    param_dic = {}
+    if request.method == "GET":
+        param_dic = request.args
+    if request.method == "POST":
+        if request.content_type is None:
+            pass
+        elif request.content_type.startswith('application/json'):
+            param_dic = request.json
+        elif request.content_type.startswith('multipart/form-data'):
+            param_dic = request.form
+        else:
+            param_dic = request.values
+    token = request.headers["Token"]
+    password = param_dic.get("password")
+    user_id = token_to_user_id(token)
+    user = User.query.filter_by(user_id=user_id)
+    if user:
+        user.password = md5(password.encode('utf8')).hexdigest()
+        user.commit()
+        data = "change password success"
+        return pack_res(data)
+    return pack_res("failed, user isn't existed.", code=-1)
