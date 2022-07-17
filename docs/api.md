@@ -7,6 +7,7 @@
 3. 接口返回遵循统一格式
 4. 接口权限验证使用header请求头验证
 5. 参考restful架构设计风格，采用 /resource/action 的接口定义，如 /info/get   /info/edit 等
+6. 对非资源类的定义，采用 /action/subaction 的方式定义接口，如登录
 
 
 
