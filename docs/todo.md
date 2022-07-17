@@ -1,8 +1,6 @@
 # todo
 
-## todo now
-
-- 修正前端页面的头像正确显示
+## t
 
 ## 技术学习
 1. flask框架 demo示例
