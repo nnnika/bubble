@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 
 # 用户输入信息
 CASH = 1000000
-START_DATE = '2022-01-05'
-END_DATE = '2022-07-26'
+START_DATE = '2022/1/5'
+END_DATE = '2022/7/26'
 # 交易日信息(举例）
 data = pd.read_csv('002594.csv')
 
@@ -16,15 +16,15 @@ data = pd.read_csv('002594.csv')
 class Context:
     def __init__(self, cash, start_date, end_date):
         self.cash = cash
-        self.start_date = start_date
-        self.end_date = end_date
+        self.start_date = start_date  # datetime.datetime.strptime(start_date, '%Y/%m/%d')
+        self.end_date = end_date  # datetime.datetime.strptime(end_date, '%Y/%m/%d')
         self.positions = {}
         self.benchmark = None
         self.date_range = data[(data['isOpen'] == 1) &
                                (data['date'] >= start_date) &
                                (data['date'] <= end_date)]['date'].values
-        self.dt = datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)
-        # self.dt = dateutil.parser.parse(start_date)  # todo: start_date 后一个交易日
+        # self.dt = datetime.datetime.strptime(start_date, '%Y-%m-%d')  # + datetime.timedelta(days=1)
+        self.dt = dateutil.parser.parse(start_date) + datetime.timedelta(days=1)
         # self.dt = None
 
 
@@ -74,8 +74,8 @@ def get_today_data(security):
         info = pd.read_csv(f, index_col='date', parse_dates=['date']).loc[today, :]
     except FileNotFoundError:
         info = tushare.get_k_data(security, today, today).iloc[0, :]
-    except KeyError:
-        info = pd.Series()
+    # except KeyError:
+    #     info = pd.Series()
     return info
 
 
@@ -159,7 +159,6 @@ def run():
     initialize(context)
     last_price = {}
     for dt in context.date_range:
-        print(dt)
         context.dt = dateutil.parser.parse(dt)
         handle_data(context)
         value = context.cash
@@ -173,16 +172,13 @@ def run():
                 last_price[stock] = p
             value += p * context.positions[stock]
         plt_df.loc[dt, 'value'] = value
-    # print(plt_df)
     plt_df['change'] = (plt_df['value'] - init_value) / init_value
-    # print(plt_df['change'])
-
     bm_df = attribute_date_range_history(context.benchmark, context.start_date, context.end_date)
     bm_init = bm_df['open'][0]
     plt_df['benchmark_chg'] = (bm_df['open'] - bm_init) / bm_init
-    print(plt_df)
-    # plt_df[['change', 'benchmark_chg']].plot()
-    # plt.show()
+    # print(plt_df)
+    plt_df[['change', 'benchmark_chg']].plot()
+    plt.show()
 
 
 def initialize(context):
@@ -193,16 +189,15 @@ def initialize(context):
 
 
 def handle_data(context):
-    # hist = attribute_history(g.security, g.p2)
-    # ma5 = hist['close'][-g.p1:].mean()
-    # ma60 = hist['close'].mean()
-    #
-    # if ma5 > ma60 and g.security not in context.positions:
-    #     order_value(g.securoty, context.cash)
-    # elif ma5 < ma60 and g.security in context.positions:
-    #     order_target(g.security, 0)
+    # order('002594', 100)
+    hist = attribute_history(g.security, g.p2)
+    ma5 = hist['close'][-g.p1:].mean()
+    ma60 = hist['close'].mean()
 
-    order('002594', 100)
+    if ma5 > ma60 and g.security not in context.positions:
+        order_value(g.security, context.cash)
+    elif ma5 < ma60 and g.security in context.positions:
+        order_target(g.security, 0)
 
 
 run()
