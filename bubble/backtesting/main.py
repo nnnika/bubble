@@ -3,7 +3,7 @@ import pandas as pd
 import datetime
 import dateutil
 import tushare
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 # 用户输入信息
 CASH = 100000
@@ -24,7 +24,8 @@ class Context:
                                (data['calendarDate'] >= start_date) &
                                (data['calendarDate'] <= end_date)]['calendarDate'].values
         # self.dt = datetime.datetime.strptime('%Y-%m-%d', start_date)
-        self.dt = dateutil.parser.parse(start_date)  # ToDO: start_date 后一个交易日
+        self.dt = dateutil.parser.parse(start_date)  # todo: start_date 后一个交易日
+        # self.dt = None
 
 
 context = Context(CASH, START_DATE, END_DATE)  # 全局变量
@@ -36,6 +37,10 @@ class G:
 
 
 g = G()
+
+
+def set_branchmark(security):
+    context.benchmark = security
 
 
 def attribute_history(security, count, fields=('open', 'close', 'high', 'low', 'volume')):
@@ -66,12 +71,12 @@ def get_today_data(security):
     today = context.dt.strftime('%Y-%m-%d')  # 用户输入的START_DATE
     try:
         f = open(security+'.csv', 'r')
-        data = pd.read_csv(f, index_col='date', parse_dates=['date']).loc[today, :]
+        info = pd.read_csv(f, index_col='date', parse_dates=['date']).loc[today, :]
     except FileNotFoundError:
-        data = tushare.get_k_data(security, today, today).iloc[0, :]
+        info = tushare.get_k_data(security, today, today).iloc[0, :]
     except KeyError:
-        data = pd.Series()
-    return data
+        info = pd.Series()
+    return info
 
 
 # print(get_today_data('002594'))
@@ -79,8 +84,7 @@ def get_today_data(security):
 
 # 开盘价应该要加一个滑点（上下波动价买入）
 def _order(today_data, security, amount):
-    p = today_data['close']
-
+    p = today_data['open']
     if len(today_data) == 0:
         print('今日停牌')
         return
@@ -106,12 +110,6 @@ def _order(today_data, security, amount):
         del context.positions[security]
 
 
-# _order(get_today_data('002594'), '002594', 400)
-# print(context.positions)
-# _order(get_today_data('002594'), '002594', -100)
-# print(context.positions)
-
-
 def order(security, amount):
     today_data = get_today_data(security)
     _order(today_data, security, amount)
@@ -120,10 +118,71 @@ def order(security, amount):
 def order_target(security, amount):
     # 参数amount不能是负的，清仓是0
     if amount < 0:
-        print('数量不能为负')
-        return
-
+        print('数量不能为负， 已调整为0')
+        amount = 0
     today_data = get_today_data(security)
     hold_amount = context.positions.get(security, 0)  # ToDo: T+1
     delta_amount = amount - hold_amount
     _order(today_data, security, delta_amount)
+
+
+def order_value(security,  value):
+    today_data = get_today_data(security)
+    amount = int(value / today_data['open'])
+    _order(today_data, security, amount)
+
+
+def order_target_value(security, value):
+    # 结合order_target & order_value
+    today_data = get_today_data(security)
+    if value < 0:
+        print('股票价值不能为负， 已调整为0')
+        value = 0
+    hold_value = context.positions.get(security, 0) * today_data['open']
+    delta_value = value - hold_value
+    order_value(security, delta_value)
+
+
+# order('002594', 400)
+# print(context.positions)
+# order_target('002594', 0)
+# print(context.positions)
+# order_value('002594', 19995)
+# print(context.positions)
+# order_target_value('002594', 500000)
+# print(context.positions)
+
+
+def run():
+    plt_df = pd.DataFrame(index=pd.to_datetime(context.date_range), columns=['value'])
+    init_value = context.cash
+    initialize(context)
+    last_price = {}
+    for dt in context.date_range:
+        # print(dt)
+        # context.dt = dateutil.parser.parse(dt)
+        handle_data(context)
+        value = context.cash
+        for stock in context.positions:
+            # 考虑停牌的情况
+            today_data = get_today_data(stock)
+            if len(today_data) == 0:
+                p = last_price[stock]
+            else:
+                p = today_data['open']
+                last_price[stock] = p
+            value += p * context.positions[stock]
+        plt_df.loc[dt, 'value'] = value
+    print(plt_df)
+    plt_df['change'] = (plt_df['value'] - init_value) / init_value
+    # print(plt_df['change'])
+
+
+def initialize(context):
+    set_branchmark('002594')
+
+
+def handle_data(context):
+    order('002594', 110)
+
+run()
