@@ -6,11 +6,11 @@ import tushare
 import matplotlib.pyplot as plt
 
 # 用户输入信息
-CASH = 100000
-START_DATE = '2019-01-10'
-END_DATE = '2019-01-17'
+CASH = 1000000
+START_DATE = '2022-01-05'
+END_DATE = '2022-07-26'
 # 交易日信息(举例）
-data = pd.read_csv('trade_cal.csv')
+data = pd.read_csv('002594.csv')
 
 
 class Context:
@@ -21,10 +21,10 @@ class Context:
         self.positions = {}
         self.benchmark = None
         self.date_range = data[(data['isOpen'] == 1) &
-                               (data['calendarDate'] >= start_date) &
-                               (data['calendarDate'] <= end_date)]['calendarDate'].values
-        # self.dt = datetime.datetime.strptime('%Y-%m-%d', start_date)
-        self.dt = dateutil.parser.parse(start_date)  # todo: start_date 后一个交易日
+                               (data['date'] >= start_date) &
+                               (data['date'] <= end_date)]['date'].values
+        self.dt = datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)
+        # self.dt = dateutil.parser.parse(start_date)  # todo: start_date 后一个交易日
         # self.dt = None
 
 
@@ -48,7 +48,7 @@ def attribute_history(security, count, fields=('open', 'close', 'high', 'low', '
     if count > len(data):
         print('数据不足')
         return IndexError
-    start_date = data[(data['isOpen'] == 1) & (data['calendarDate'] <= end_date)][-count:].iloc[0, :]['calendarDate']
+    start_date = data[(data['isOpen'] == 1) & (data['date'] <= end_date)][-count:].iloc[0, :]['date']
     # print(start_date, end_date)    # end_date是START_DATE前一天，start_date是START_DATE往前回溯3天（满足条件）
     return attribute_date_range_history(security, start_date, end_date, fields)
 
@@ -159,8 +159,8 @@ def run():
     initialize(context)
     last_price = {}
     for dt in context.date_range:
-        # print(dt)
-        # context.dt = dateutil.parser.parse(dt)
+        print(dt)
+        context.dt = dateutil.parser.parse(dt)
         handle_data(context)
         value = context.cash
         for stock in context.positions:
@@ -173,16 +173,36 @@ def run():
                 last_price[stock] = p
             value += p * context.positions[stock]
         plt_df.loc[dt, 'value'] = value
-    print(plt_df)
+    # print(plt_df)
     plt_df['change'] = (plt_df['value'] - init_value) / init_value
     # print(plt_df['change'])
+
+    bm_df = attribute_date_range_history(context.benchmark, context.start_date, context.end_date)
+    bm_init = bm_df['open'][0]
+    plt_df['benchmark_chg'] = (bm_df['open'] - bm_init) / bm_init
+    print(plt_df)
+    # plt_df[['change', 'benchmark_chg']].plot()
+    # plt.show()
 
 
 def initialize(context):
     set_branchmark('002594')
+    g.p1 = 5
+    g.p2 = 60
+    g.security = '002594'
 
 
 def handle_data(context):
-    order('002594', 110)
+    # hist = attribute_history(g.security, g.p2)
+    # ma5 = hist['close'][-g.p1:].mean()
+    # ma60 = hist['close'].mean()
+    #
+    # if ma5 > ma60 and g.security not in context.positions:
+    #     order_value(g.securoty, context.cash)
+    # elif ma5 < ma60 and g.security in context.positions:
+    #     order_target(g.security, 0)
+
+    order('002594', 100)
+
 
 run()
