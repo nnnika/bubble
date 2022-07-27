@@ -16,20 +16,19 @@ data = pd.read_csv('002594.csv')
 class Context:
     def __init__(self, cash, start_date, end_date):
         self.cash = cash
-        self.start_date = start_date  # datetime.datetime.strptime(start_date, '%Y/%m/%d')
-        self.end_date = end_date  # datetime.datetime.strptime(end_date, '%Y/%m/%d')
+        self.start_date = start_date
+        self.end_date = end_date
         self.positions = {}
         self.benchmark = None
         self.date_range = data[(data['isOpen'] == 1) &
                                (data['date'] >= start_date) &
                                (data['date'] <= end_date)]['date'].values
-        # self.dt = datetime.datetime.strptime(start_date, '%Y-%m-%d')  # + datetime.timedelta(days=1)
+        # self.dt = datetime.datetime.strptime(start_date, '%Y-%m-%d') + datetime.timedelta(days=1)
         self.dt = dateutil.parser.parse(start_date) + datetime.timedelta(days=1)
         # self.dt = None
 
 
 context = Context(CASH, START_DATE, END_DATE)  # 全局变量
-# print(context.date_range)
 
 
 class G:
@@ -62,10 +61,6 @@ def attribute_date_range_history(security, start_date, end_date, fields=('open',
     return df[list(fields)]
 
 
-# print(attribute_date_range_history('002594', '2019-01-01', '2019-01-11'))
-# print(attribute_history('002594', 3))
-
-
 # 下单函数
 def get_today_data(security):
     today = context.dt.strftime('%Y-%m-%d')  # 用户输入的START_DATE
@@ -77,9 +72,6 @@ def get_today_data(security):
     # except KeyError:
     #     info = pd.Series()
     return info
-
-
-# print(get_today_data('002594'))
 
 
 # 开盘价应该要加一个滑点（上下波动价买入）
@@ -143,16 +135,6 @@ def order_target_value(security, value):
     order_value(security, delta_value)
 
 
-# order('002594', 400)
-# print(context.positions)
-# order_target('002594', 0)
-# print(context.positions)
-# order_value('002594', 19995)
-# print(context.positions)
-# order_target_value('002594', 500000)
-# print(context.positions)
-
-
 def run():
     plt_df = pd.DataFrame(index=pd.to_datetime(context.date_range), columns=['value'])
     init_value = context.cash
@@ -176,7 +158,6 @@ def run():
     bm_df = attribute_date_range_history(context.benchmark, context.start_date, context.end_date)
     bm_init = bm_df['open'][0]
     plt_df['benchmark_chg'] = (bm_df['open'] - bm_init) / bm_init
-    # print(plt_df)
     plt_df[['change', 'benchmark_chg']].plot()
     plt.show()
 
