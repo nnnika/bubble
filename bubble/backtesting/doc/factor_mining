@@ -14,12 +14,12 @@
 * 分钟K线（1年20G）
 * 日K线（10年1G）
 
-### 面板数据模式
+#### 面板数据模式
 * e.g. alpha001:
 def alphaPanel(close):
-    return rowRank(X=minmax(pow(iif(ratios(close) - 1 < 0, mstd(ratios(close) - 1, 20), close), 2.0), 5), percent=True) = 0.5
+    return rowRank(X=minmax(pow(if(ratios(close) - 1 < 0, mstd(ratios(close) - 1, 20), close), 2.0), 5), percent=True) = 0.5
 
-### SQL 模式
+#### SQL 模式
 * e.g. double EMA 双指数移动平均指标
 def sum_diff(x, y):
     return (x-y)\(x+y)
@@ -37,4 +37,4 @@ res = factorDoubleEMA(close) as val from t context by securityID
 
 ## 结果推算
 ### 策略平台
-###交易系统
+### 交易系统
