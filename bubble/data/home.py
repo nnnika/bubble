@@ -1,11 +1,17 @@
 import time
 
 # 今日最佳股票
+# stock_pool = {
+#     "best_stock": [{
+#         "name": "比亚迪", "code": "002594.SZ", "strategy": "樱盘策略1", "strategy_profit": 0.05
+#     }]
+# }
+
 stock_pool = {
-    "best_stock": [{
-        "name": "比亚迪", "code": "002594.SZ", "strategy": "樱盘策略1", "strategy_profit": 0.05
-    }]
+    "strategy_1_best_stock": {
+        "code": [], "name": [], "position": [], "weight": [], "cost": [], "current_price": []}
 }
+
 
 # 未来一周大盘走势预测 (过去30天+未来5天), x轴为日期，y轴为收盘价
 index_forecast = {
